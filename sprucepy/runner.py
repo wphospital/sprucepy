@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from datetime import datetime, timezone
 import pytz
 
-from .notifier import Email, get_recipient_emails, get_recipients
+from notifier import Email, get_recipient_emails, get_recipients
 
 app_url = 'http://localhost:1592/'
 api_url = 'http://localhost:1592/api/v1/'
