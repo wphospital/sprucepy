@@ -1,6 +1,6 @@
 name = "sprucepy"
 
-import notifier
-import runner
-import scheduler
-import linscheduler
+import .notifier
+import .runner
+import .scheduler
+import .linscheduler
