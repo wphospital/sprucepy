@@ -6,7 +6,7 @@ import datetime as dt
 import click
 
 project_root = '/code'
-path = 'runner.py'
+path = 'sprucepy.runner'
 
 system = platform.system()
 

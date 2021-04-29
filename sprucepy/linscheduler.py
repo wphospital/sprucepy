@@ -117,7 +117,7 @@ def create_task(
     # Combine task and arguments
     task = 'cd ' + start_in + \
         ' && ' + \
-        python_path + ' ' \
+        python_path + ' -m ' \
         + path + ' ' + \
         script_args if script_args else None
 
