@@ -1,6 +1,6 @@
 import platform
 # import winscheduler as ws
-import linscheduler as ls
+import .linscheduler as ls
 import os
 import datetime as dt
 import click
