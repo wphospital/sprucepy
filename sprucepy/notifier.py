@@ -31,7 +31,7 @@ def get_recipient_emails(recipient_list = None, task_id = None, category = None)
         recipient_list = get_recipients(task_id, category)
 
     # Get the emails as (id, email) tuples needed for the Email class
-    emails = [(d['person'], d['email']) for d in recipient_list if d['mode'] == 'email']
+    emails = [(d['person'], d['email']) for d in recipient_list if d['mode'] == 'email' and d['email']]
 
     return emails
 
