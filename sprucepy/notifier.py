@@ -120,10 +120,10 @@ class Email:
         if msg is None:
             msg = self.msg
 
+        ept = urljoin(api_url, notification_ept)
+
         try:
             with smtplib.SMTP(self.server) as server:
-                ept = urljoin(api_url, notification_ept)
-
                 for sendto in self.email_list:
                     try:
                         # Send the email to this specific email address
