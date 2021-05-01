@@ -33,8 +33,6 @@ def get_recipient_emails(recipient_list = None, task_id = None, category = None)
     # Get the emails as (id, email) tuples needed for the Email class
     emails = [(d['person'], d['email']) for d in recipient_list if d['mode'] == 'email' and d['email']]
 
-    print(emails)
-
     return emails
 
 def get_recipient_attrs(attr, recipient_list = None, task_id = None, category = None):
@@ -122,38 +120,54 @@ class Email:
         if msg is None:
             msg = self.msg
 
-        with smtplib.SMTP(self.server) as server:
-            ept = urljoin(api_url, notification_ept)
+        try:
+            with smtplib.SMTP(self.server) as server:
+                ept = urljoin(api_url, notification_ept)
 
+                for sendto in self.email_list:
+                    try:
+                        # Send the email to this specific email address
+                        server.sendmail(self.from_email, sendto[1], msg.as_string())
+
+                        # Send a POST to the API recording the send
+                        payload = dict(
+                            run = self.run,
+                            person = sendto[0],
+                            category = self.category,
+                            object = self.object,
+                            mode = self.mode,
+                            body = self.body_text,
+                            return_code = 0
+                        )
+
+                        requests.post(ept, data=payload)
+
+                    except Exception as e:
+                        # Send a POST to the API recording the error
+                        payload = dict(
+                            run = self.run,
+                            person = sendto[0],
+                            category = self.category,
+                            object = self.object,
+                            mode = self.mode,
+                            body = self.body_text,
+                            return_code = 1,
+                            error_text = e
+                        )
+
+                        requests.post(ept, data=payload)
+        except Exception as e:
             for sendto in self.email_list:
-                try:
-                    # Send the email to this specific email address
-                    server.sendmail(self.from_email, sendto[1], msg.as_string())
+                # Send a POST to the API recording the error
+                payload = dict(
+                    run = self.run,
+                    person = sendto[0],
+                    category = self.category,
+                    object = self.object,
+                    mode = self.mode,
+                    body = self.body_text,
+                    return_code = 1,
+                    error_text = e
+                )
 
-                    # Send a POST to the API recording the send
-                    payload = dict(
-                        run = self.run,
-                        person = sendto[0],
-                        category = self.category,
-                        object = self.object,
-                        mode = self.mode,
-                        body = self.body_text,
-                        return_code = 0
-                    )
-
-                    requests.post(ept, data=payload)
-
-                except Exception as e:
-                    # Send a POST to the API recording the error
-                    payload = dict(
-                        run = self.run,
-                        person = sendto[0],
-                        category = self.category,
-                        object = self.object,
-                        mode = self.mode,
-                        body = self.body_text,
-                        return_code = 1,
-                        error_text = e
-                    )
-
-                    requests.post(ept, data=payload)
+                requests.post(ept, data=payload)
