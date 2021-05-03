@@ -91,28 +91,31 @@ class Email:
         msg.attach(MIMEText(self.body_text, self.body_type))
 
         if attachment is not None:
-            try:
-                pretty_filename = attachment.split('\\')[-1]
-            except:
-                pretty_filename = attachment
+            attachment = [attachment] if type(attachment) != 'list' else attachment
 
-            with open(attachment, "rb") as att:
-                # Add file as application/octet-stream
-                # Email client can usually download this automatically as attachment
-                part = MIMEBase("application", "octet-stream")
-                part.set_payload(att.read())
+            for a in attachment:
+                try:
+                    pretty_filename = a.split('\\')[-1]
+                except:
+                    pretty_filename = a
 
-            # Encode file in ASCII characters to send by email
-            encoders.encode_base64(part)
+                with open(a, "rb") as att:
+                    # Add file as application/octet-stream
+                    # Email client can usually download this automatically as attachment
+                    part = MIMEBase("application", "octet-stream")
+                    part.set_payload(att.read())
 
-            # Add header as key/value pair to attachment part
-            part.add_header(
-                "Content-Disposition",
-                "attachment; filename= {}".format(pretty_filename),
-            )
+                # Encode file in ASCII characters to send by email
+                encoders.encode_base64(part)
 
-            # Add attachment to message and convert message to string
-            msg.attach(part)
+                # Add header as key/value pair to attachment part
+                part.add_header(
+                    "Content-Disposition",
+                    "attachment; filename= {}".format(pretty_filename),
+                )
+
+                # Add attachment to message and convert message to string
+                msg.attach(part)
 
         self.msg = msg
 
