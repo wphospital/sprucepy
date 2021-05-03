@@ -91,7 +91,7 @@ class Email:
         msg.attach(MIMEText(self.body_text, self.body_type))
 
         if attachment is not None:
-            attachment = [attachment] if type(attachment) != 'list' else attachment
+            attachment = [attachment] if type(attachment) != list else attachment
 
             for a in attachment:
                 try:
