@@ -18,24 +18,27 @@ def get_recipients(task_id, category):
     ept = urljoin(api_url, recipient_ept)
 
     payload = dict(
-        task_id = task_id,
-        category = category
+        task_id=task_id,
+        category=category
     )
 
     r = requests.get(ept, params=payload)
 
     return r.json()
 
-def get_recipient_emails(recipient_list = None, task_id = None, category = None):
+
+def get_recipient_emails(recipient_list=None, task_id=None, category=None):
     if recipient_list is None:
         recipient_list = get_recipients(task_id, category)
 
     # Get the emails as (id, email) tuples needed for the Email class
-    emails = [(d['person'], d['email']) for d in recipient_list if d['mode'] == 'email' and d['email']]
+    emails = [(d['person'], d['email'])
+              for d in recipient_list if d['mode'] == 'email' and d['email']]
 
     return emails
 
-def get_recipient_attrs(attr, recipient_list = None, task_id = None, category = None):
+
+def get_recipient_attrs(attr, recipient_list=None, task_id=None, category=None):
     if recipient_list is None:
         recipient_list = get_recipients(task_id, category)
 
@@ -57,10 +60,14 @@ class Email:
         run=None,
         category='output',
         object='task',
-        server='smtp.stellarishealth.net'
+        server='smtp.stellarishealth.net',
+        cc_recipients=[],
+        bcc_recipients=[]
     ):
         self.attachment = attachment
         self.email_list = recipients
+        self.cc_email_list = cc_recipients
+        self.bcc_email_list = bcc_recipients
         self.body_type = body_type
         self.subject = subject
         self.body_text = body
@@ -87,11 +94,14 @@ class Email:
         msg = MIMEMultipart('related')
         msg['From'] = self.from_email
         msg['To'] = '; '.join([e[1] for e in self.email_list])
+        msg['Cc'] = '; '.join([e[1] for e in self.cc_email_list])
+        msg['Bcc'] = '; '.join([e[1] for e in self.bcc_email_list])
         msg['Subject'] = self.subject
         msg.attach(MIMEText(self.body_text, self.body_type))
 
         if attachment is not None:
-            attachment = [attachment] if type(attachment) != list else attachment
+            attachment = [attachment] if type(
+                attachment) != list else attachment
 
             for a in attachment:
                 try:
@@ -119,7 +129,7 @@ class Email:
 
         self.msg = msg
 
-    def send_email(self, msg = None):
+    def send_email(self, msg=None):
         if msg is None:
             msg = self.msg
 
@@ -127,20 +137,21 @@ class Email:
 
         try:
             with smtplib.SMTP(self.server) as server:
-                for sendto in self.email_list:
+                for sendto in set(self.email_list) | set(self.cc_email_list) | set(self.bcc_email_list):
                     try:
                         # Send the email to this specific email address
-                        server.sendmail(self.from_email, sendto[1], msg.as_string())
+                        server.sendmail(self.from_email,
+                                        sendto[1], msg.as_string())
 
                         # Send a POST to the API recording the send
                         payload = dict(
-                            run = self.run,
-                            person = sendto[0],
-                            category = self.category,
-                            object = self.object,
-                            mode = self.mode,
-                            body = self.body_text,
-                            return_code = 0
+                            run=self.run,
+                            person=sendto[0],
+                            category=self.category,
+                            object=self.object,
+                            mode=self.mode,
+                            body=self.body_text,
+                            return_code=0
                         )
 
                         requests.post(ept, data=payload)
@@ -148,14 +159,14 @@ class Email:
                     except Exception as e:
                         # Send a POST to the API recording the error
                         payload = dict(
-                            run = self.run,
-                            person = sendto[0],
-                            category = self.category,
-                            object = self.object,
-                            mode = self.mode,
-                            body = self.body_text,
-                            return_code = 1,
-                            error_text = e
+                            run=self.run,
+                            person=sendto[0],
+                            category=self.category,
+                            object=self.object,
+                            mode=self.mode,
+                            body=self.body_text,
+                            return_code=1,
+                            error_text=e
                         )
 
                         requests.post(ept, data=payload)
@@ -163,14 +174,14 @@ class Email:
             for sendto in self.email_list:
                 # Send a POST to the API recording the error
                 payload = dict(
-                    run = self.run,
-                    person = sendto[0],
-                    category = self.category,
-                    object = self.object,
-                    mode = self.mode,
-                    body = self.body_text,
-                    return_code = 1,
-                    error_text = e
+                    run=self.run,
+                    person=sendto[0],
+                    category=self.category,
+                    object=self.object,
+                    mode=self.mode,
+                    body=self.body_text,
+                    return_code=1,
+                    error_text=e
                 )
 
                 requests.post(ept, data=payload)
