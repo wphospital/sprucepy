@@ -99,7 +99,7 @@ class Runner:
         emails = get_recipient_emails(recipient_list)
 
         # If there are no recipients, do nothing
-        if len(emails) == 0:
+        if len(recipient_list) == 0:
             return
 
         # Get the phones as (id, phone) tuples needed for the SMS class
