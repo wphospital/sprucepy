@@ -61,8 +61,8 @@ class Email:
         category='output',
         object='task',
         server='smtp.stellarishealth.net',
-        cc_recipients=None,
-        bcc_recipients=None
+        cc_recipients=[],
+        bcc_recipients=[]
     ):
         self.attachment = attachment
         self.email_list = recipients
@@ -137,7 +137,7 @@ class Email:
 
         try:
             with smtplib.SMTP(self.server) as server:
-                for sendto in self.email_list:
+                for sendto in set(self.email_list) | set(self.cc_email_list) | set(self.bcc_email_list):
                     try:
                         # Send the email to this specific email address
                         server.sendmail(self.from_email,
