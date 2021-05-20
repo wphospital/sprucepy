@@ -1,12 +1,13 @@
+import requests
+import os
+import mimetypes
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email import encoders
-import mimetypes
 from urllib.parse import urljoin
-import requests
 
 api_url = 'http://localhost:1592/api/v1/'
 notification_ept = 'notifications'
@@ -107,7 +108,7 @@ class Email:
 
             for a in attachment:
                 try:
-                    pretty_filename = a.split('\\')[-1]
+                    pretty_filename = os.path.basename(a)
                 except:
                     pretty_filename = a
 
