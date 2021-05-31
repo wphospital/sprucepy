@@ -1,12 +1,13 @@
+import requests
+import os
+import mimetypes
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email import encoders
-import mimetypes
 from urllib.parse import urljoin
-import requests
 
 api_url = 'http://localhost:1592/api/v1/'
 notification_ept = 'notifications'
@@ -31,9 +32,13 @@ def get_recipient_emails(recipient_list=None, task_id=None, category=None):
     if recipient_list is None:
         recipient_list = get_recipients(task_id, category)
 
-    # Get the emails as (id, email) tuples needed for the Email class
-    emails = [(d['person'], d['email'])
-              for d in recipient_list if d['mode'] == 'email' and d['email']]
+    # Get the emails as a dict with structure
+    # send_line: [(id, email)], as needed for the Email class
+    emails = dict(to=[], cc=[], bcc=[])
+
+    for d in recipient_list:
+        if d['mode'] == 'email' and d['email']:
+            emails[d['send_line']].append((d['person'], d['email']))
 
     return emails
 
@@ -60,14 +65,12 @@ class Email:
         run=None,
         category='output',
         object='task',
-        server='smtp.stellarishealth.net',
-        cc_recipients=[],
-        bcc_recipients=[]
+        server='smtp.stellarishealth.net'
     ):
         self.attachment = attachment
-        self.email_list = recipients
-        self.cc_email_list = cc_recipients
-        self.bcc_email_list = bcc_recipients
+        self.email_list = recipients['to']
+        self.cc_email_list = recipients['cc']
+        self.bcc_email_list = recipients['bcc']
         self.body_type = body_type
         self.subject = subject
         self.body_text = body
@@ -105,7 +108,7 @@ class Email:
 
             for a in attachment:
                 try:
-                    pretty_filename = a.split('\\')[-1]
+                    pretty_filename = os.path.basename(a)
                 except:
                     pretty_filename = a
 
