@@ -142,14 +142,24 @@ class Runner:
         ).build_and_send()
 
         # Send texts
-
-        t = SMS(
-            recipients=phones,
-            body=sms_body,
-            sms_broker='aws',
-            run=self.run_id,
-            category='error',
-            object='task').send()
+        try:
+            t = SMS(
+                recipients=phones,
+                body=sms_body,
+                sms_broker='aws',
+                run=self.run_id,
+                category='error',
+                object='task').send()
+        except:
+            txt_error = Email(
+                recipients=emails,
+                body="SMS Failed to Send on Error",
+                from_email='noreply@wphospital.org',
+                subject='Notifcation Failure',
+                run=self.run_id,
+                category='error',
+                object='task'
+            ).build_and_send()
 
     # Run the target script
     def run(self):
