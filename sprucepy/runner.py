@@ -8,16 +8,16 @@ import click
 from urllib.parse import urljoin
 from datetime import datetime, timezone
 import pytz
+from .constants import api_url, app_url
 
-from .notifier import Email, get_recipient_emails, get_recipients
+from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
 
-app_url = 'http://localhost:1592/'
-api_url = 'http://localhost:1592/api/v1/'
 run_ept = 'runs'
 recipient_ept = 'recipients'
 task_ept = 'tasks'
 
 DEFAULT_USER = 1
+
 
 class Runner:
     def __init__(self, **kwargs):
@@ -97,13 +97,15 @@ class Runner:
 
         recipient_list = get_recipients(self.task_id, 'error')
         emails = get_recipient_emails(recipient_list)
+        #phones = get_recipient_phones(recipient_list)
 
         # If there are no recipients, do nothing
         if len(recipient_list) == 0:
             return
 
         # Get the phones as (id, phone) tuples needed for the SMS class
-        phones = [(d['person'], d['phone']) for d in recipient_list if d['mode'] == 'phone']
+        phones = [(d['person'], d['phone'])
+                  for d in recipient_list if d['mode'] == 'sms']
 
         # Retrieves the error message template
         with open('templates/error_email.html', 'r') as file:
@@ -111,21 +113,27 @@ class Runner:
 
         # Task and run metadata
         task_title = recipient_list[0]['task_name']
-        run_start = self.run_start.astimezone(pytz.timezone('America/New_York')).strftime('%m/%d/%Y %H:%M:%S')
+        run_start = self.run_start.astimezone(pytz.timezone(
+            'America/New_York')).strftime('%m/%d/%Y %H:%M:%S')
 
         # Formats the error message template with run-specific strings
+        run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
+        task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         body = template.format(
-            run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__(),
-            task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__(),
-            task = task_title,
-            task_start_time = run_start,
-            error = res.stderr.decode('ascii').replace('\n', '<br>')
+            run_url=run_url,
+            task_url=task_url,
+            task=task_title,
+            task_start_time=run_start,
+            error=res.stderr.decode('ascii').replace('\n', '<br>')
         )
+
+        sms_body = "Spruce Error in {task}: {task_url}: {run_url}. {task_start_time}".format(
+            task=task_title, run_url=run_url, task_url=task_url, task_start_time=run_start)
 
         # Send emails via the Email class in notifier module
         e = Email(
-            recipients = emails,
-            body = body,
+            recipients=emails,
+            body=body,
             from_email='noreply@wphospital.org',
             subject='Run Failure',
             run=self.run_id,
@@ -134,6 +142,14 @@ class Runner:
         ).build_and_send()
 
         # Send texts
+
+        t = SMS(
+            recipients=phones,
+            body=sms_body,
+            sms_broker='aws',
+            run=self.run_id,
+            category='error',
+            object='task').send()
 
     # Run the target script
     def run(self):
@@ -150,12 +166,14 @@ class Runner:
         elif self.ext == '.R':
             interpreter = 'RScript'
         elif self.ext == None:
-            res = self.custom_error(returncode=99, error=b"Check your Spruce Task administrator. The script file type is not supported.")
+            res = self.custom_error(
+                returncode=99, error=b"Check your Spruce Task administrator. The script file type is not supported.")
             self.complete_run(res)
             return
 
         if interpreter == '':
-            res = self.custom_error(returncode=99, error=b"The scheduler could not locate a Python path")
+            res = self.custom_error(
+                returncode=99, error=b"The scheduler could not locate a Python path")
             self.complete_run(res)
             return
 
