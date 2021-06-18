@@ -3,7 +3,7 @@ import os
 from .constants import api_url
 
 
-def get_secret_by_key(key):
+def get_secret_by_key(key, api_url=api_url):
     """Retrieve a secret from the key vault
 
     Args:
