@@ -23,6 +23,7 @@ setuptools.setup(
         'requests',
         'click',
         'pretty_cron',
-        'croniter'
+        'croniter',
+        'boto3'
     ]
 )
