@@ -105,7 +105,7 @@ class Runner:
 
         # Get the phones as (id, phone) tuples needed for the SMS class
         phones = [(d['person'], d['phone'])
-                  for d in recipient_list if d['mode'] == 'sms']
+                  for d in recipient_list if d['mode'] == 'sms' and d['phone']]
 
         # Retrieves the error message template
         with open('templates/error_email.html', 'r') as file:
