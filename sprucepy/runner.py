@@ -95,6 +95,7 @@ class Runner:
         r = requests.post(ept, data=data)
         # set status to running
         self.status_running = True
+        self.start_heartbeat()
 
         self.run_id = r.json()['id']
 
