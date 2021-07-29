@@ -2,6 +2,8 @@
 import subprocess
 from subprocess import PIPE
 from subprocess import CompletedProcess
+import threading
+import time
 import os
 import requests
 import click
@@ -26,6 +28,7 @@ class Runner:
         self.user = kwargs.get('user', DEFAULT_USER)
         self.start_dir = kwargs.get('start_dir', os.getcwd())
         self.script_args = kwargs.get('script_args')
+        self.status_running = False
 
         self.valid = os.path.exists(os.path.join(self.start_dir, self.target))
 
@@ -35,6 +38,32 @@ class Runner:
 
     def validate_path(self, path, target):
         pass
+
+    def heartbeat(self, frequency=10):
+        """Sends a heartbeat while running
+
+        Args:
+            frequency (int, optional): [description]. Defaults to 10.
+        """
+        ept = urljoin(api_url, run_ept) + '/heartbeat/' + self.run_id.__str__()
+        while self.status_running == True:
+            requests.post(ept)
+
+    def start_heartbeat(self, frequency=10):
+        """Send a heartbeat to the API
+
+        Args:
+            frequency (int, optional): number of seconds between heartbeats. Defaults to 10.
+        """
+
+        sub_env = os.environ.copy()
+        sub_env['TASK_ID'] = self.task_id.__str__()
+        sub_env['RUN_ID'] = self.run_id.__str__()
+
+        threadname = 'heartbeat_run_{}'.sub_env['RUN_ID']
+        thread = threading.Thread(
+            name=threadname, target=self.heartbeat, args=(frequency))
+        thread.start()
 
     def _get_python_path(self):
         return '/usr/local/bin/python3.9'
@@ -59,6 +88,8 @@ class Runner:
         )
 
         r = requests.post(ept, data=data)
+        # set status to running
+        self.status_running = True
 
         self.run_id = r.json()['id']
 
@@ -88,6 +119,8 @@ class Runner:
         )
 
         requests.patch(ept, data=payload)
+
+        self.status_running = False
 
     def notify_failure(self, res):
         """In the event of a run failure, retrieves a list of individuals
