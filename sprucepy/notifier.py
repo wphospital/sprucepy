@@ -9,6 +9,7 @@ from email.mime.image import MIMEImage
 from email import encoders
 from urllib.parse import urljoin
 from .constants import api_url
+
 from sprucepy.secrets import get_secret_by_key
 import boto3
 
@@ -248,8 +249,10 @@ class SMS:
 
         requests.post(ept, data=payload)
 
-        aws_access_key_id = get_secret_by_key('aws_access_key_id')
-        aws_secret_access_key = get_secret_by_key('aws_secret_access_key')
+        aws_access_key_id = get_secret_by_key(
+            'aws_access_key_id', api_url='http://10.16.8.20:1592/api/v1/')
+        aws_secret_access_key = get_secret_by_key(
+            'aws_secret_access_key', api_url='http://10.16.8.20:1592/api/v1/')
 
         # Create an SNS client
         client = boto3.client(
