@@ -45,9 +45,13 @@ class Runner:
         Args:
             frequency (int, optional): [description]. Defaults to 10.
         """
+        payload = dict(
+            heartbeat=datetime.now(timezone.utc)
+        )
+
         ept = urljoin(api_url, run_ept) + '/heartbeat/' + self.run_id.__str__()
         while self.status_running == True:
-            requests.post(ept)
+            requests.patch(ept, data=payload)
 
     def start_heartbeat(self, frequency=10):
         """Send a heartbeat to the API
