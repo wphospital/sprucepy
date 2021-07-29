@@ -65,7 +65,7 @@ class Runner:
         sub_env['TASK_ID'] = self.task_id.__str__()
         sub_env['RUN_ID'] = self.run_id.__str__()
 
-        threadname = 'heartbeat_run_{}'.sub_env['RUN_ID']
+        threadname = 'heartbeat_run_{}'.format(self.run_id.__str__())
         thread = threading.Thread(
             name=threadname, target=self.heartbeat)
         thread.start()
