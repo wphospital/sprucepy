@@ -46,13 +46,13 @@ class Runner:
             frequency (int, optional): [description]. Defaults to 10.
         """
 
-        ept = urljoin(api_url, run_ept) + '/heartbeat/' + self.run_id.__str__()
+        ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
         while self.status_running == True:
-            time.sleep(frequency)
             payload = dict(
                 heartbeat=datetime.now(timezone.utc)
             )
             requests.patch(ept, data=payload)
+            time.sleep(frequency)
 
     def start_heartbeat(self, frequency=10):
         """Send a heartbeat to the API
@@ -67,7 +67,7 @@ class Runner:
 
         threadname = 'heartbeat_run_{}'.sub_env['RUN_ID']
         thread = threading.Thread(
-            name=threadname, target=self.heartbeat, args=(frequency))
+            name=threadname, target=self.heartbeat)
         thread.start()
 
     def _get_python_path(self):
