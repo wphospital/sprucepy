@@ -45,12 +45,13 @@ class Runner:
         Args:
             frequency (int, optional): [description]. Defaults to 10.
         """
-        payload = dict(
-            heartbeat=datetime.now(timezone.utc)
-        )
 
         ept = urljoin(api_url, run_ept) + '/heartbeat/' + self.run_id.__str__()
         while self.status_running == True:
+            time.sleep(frequency)
+            payload = dict(
+                heartbeat=datetime.now(timezone.utc)
+            )
             requests.patch(ept, data=payload)
 
     def start_heartbeat(self, frequency=10):
@@ -121,10 +122,8 @@ class Runner:
             output_text=output,
             return_code=res.returncode,
         )
-
-        requests.patch(ept, data=payload)
-
         self.status_running = False
+        requests.patch(ept, data=payload)
 
     def notify_failure(self, res):
         """In the event of a run failure, retrieves a list of individuals
