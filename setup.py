@@ -19,7 +19,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'crontab',
+        'python-crontab',
         'requests',
         'click',
         'pretty_cron',
