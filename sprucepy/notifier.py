@@ -40,7 +40,7 @@ def get_recipient_emails(recipient_list=None, task_id=None, category=None):
     emails = dict(to=[], cc=[], bcc=[])
 
     for d in recipient_list:
-        if d['mode'] == 'email' and d['email']:
+        if d['mode'] == 'email' and d['email'] and (d['task_testing'] == d['send_testing'] or not d['task_testing']):
             emails[d['send_line']].append((d['person'], d['email']))
 
     return emails
