@@ -17,7 +17,7 @@ notification_ept = 'notifications'
 recipient_ept = 'recipients'
 
 
-def get_recipients(task_id, category):
+def get_recipients(task_id, category, api_url=api_url):
     # Get the list to notify from the task
     ept = urljoin(api_url, recipient_ept)
 
@@ -31,9 +31,9 @@ def get_recipients(task_id, category):
     return r.json()
 
 
-def get_recipient_emails(recipient_list=None, task_id=None, category=None):
+def get_recipient_emails(recipient_list=None, task_id=None, category=None, api_url=api_url):
     if recipient_list is None:
-        recipient_list = get_recipients(task_id, category)
+        recipient_list = get_recipients(task_id, category, api_url)
 
     # Get the emails as a dict with structure
     # send_line: [(id, email)], as needed for the Email class
@@ -46,9 +46,9 @@ def get_recipient_emails(recipient_list=None, task_id=None, category=None):
     return emails
 
 
-def get_recipient_phones(recipient_list=None, task_id=None, category=None):
+def get_recipient_phones(recipient_list=None, task_id=None, category=None, api_url=api_url):
     if recipient_list is None:
-        recipient_list = get_recipients(task_id, category)
+        recipient_list = get_recipients(task_id, category, api_url=api_url)
 
     # Get the phones as a dict with structure
     # send_line: [(id, phone)], as needed for the SMS class
@@ -61,9 +61,9 @@ def get_recipient_phones(recipient_list=None, task_id=None, category=None):
     return phones
 
 
-def get_recipient_attrs(attr, recipient_list=None, task_id=None, category=None):
+def get_recipient_attrs(attr, recipient_list=None, task_id=None, category=None, api_url=api_url):
     if recipient_list is None:
-        recipient_list = get_recipients(task_id, category)
+        recipient_list = get_recipients(task_id, category, api_url=api_url)
 
     # Get the attributes as (id, attr) tuples
     attrs = [(d['person'], d[attr]) for d in recipient_list]
