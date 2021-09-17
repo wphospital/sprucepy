@@ -101,9 +101,9 @@ class Email:
 
         self.build_email()
 
-    def build_and_send(self):
+    def build_and_send(self, api_url=api_url, standalone=False):
         self.build_email()
-        self.send_email()
+        self.send_email(api_url=api_url, standalone=standalone)
 
     def build_email(self):
         subject = self.subject
@@ -150,7 +150,7 @@ class Email:
 
         self.msg = msg
 
-    def send_email(self, msg=None):
+    def send_email(self, msg=None, api_url=api_url, standalone=False):
         if msg is None:
             msg = self.msg
 
@@ -165,32 +165,34 @@ class Email:
                                         sendto[1], msg.as_string())
 
                         # Send a POST to the API recording the send
-                        payload = dict(
-                            run=self.run,
-                            person=sendto[0],
-                            category=self.category,
-                            object=self.object,
-                            mode=self.mode,
-                            body=self.body_text,
-                            return_code=0
-                        )
+                        if not standalone:
+                            payload = dict(
+                                run=self.run,
+                                person=sendto[0],
+                                category=self.category,
+                                object=self.object,
+                                mode=self.mode,
+                                body=self.body_text,
+                                return_code=0
+                            )
 
-                        requests.post(ept, data=payload)
+                            requests.post(ept, data=payload)
 
                     except Exception as e:
                         # Send a POST to the API recording the error
-                        payload = dict(
-                            run=self.run,
-                            person=sendto[0],
-                            category=self.category,
-                            object=self.object,
-                            mode=self.mode,
-                            body=self.body_text,
-                            return_code=1,
-                            error_text=e
-                        )
+                        if not standalone:
+                            payload = dict(
+                                run=self.run,
+                                person=sendto[0],
+                                category=self.category,
+                                object=self.object,
+                                mode=self.mode,
+                                body=self.body_text,
+                                return_code=1,
+                                error_text=e
+                            )
 
-                        requests.post(ept, data=payload)
+                            requests.post(ept, data=payload)
         except Exception as e:
             for sendto in self.email_list:
                 # Send a POST to the API recording the error
