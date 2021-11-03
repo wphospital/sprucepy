@@ -13,10 +13,12 @@ import pytz
 from .constants import api_url, app_url
 
 from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
+from .secrets import get_secret_by_key
 
 run_ept = 'runs'
 recipient_ept = 'recipients'
 task_ept = 'tasks'
+task_secret_ept = 'task_secrets'
 
 DEFAULT_USER = 1
 
@@ -31,6 +33,15 @@ class Runner:
         self.status_running = False
 
         self.valid = os.path.exists(os.path.join(self.start_dir, self.target))
+
+        # TODO: hit Spruce endpoint to get env_vars
+        ept = urljoin(api_url, task_secret_ept)
+        res = requests.get(ept + '/' + str(self.task_id))
+
+        if res.status_code == 200:
+            self.env_vars = {d['alias']: d['secret_key'] for d in res.json()}
+        else:
+            self.env_vars = []
 
         # TODO make a config file for extensions
         self.ext = os.path.splitext(
@@ -228,6 +239,10 @@ class Runner:
         sub_env = os.environ.copy()
         sub_env['TASK_ID'] = self.task_id.__str__()
         sub_env['RUN_ID'] = self.run_id.__str__()
+
+        if self.env_vars:
+            for k, v in self.env_vars.items():
+                sub_env[k] = get_secret_by_key(v)
 
         res = subprocess.run('cd {} && {} {}'.format(self.start_dir, interpreter, full_target),
                              stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
