@@ -83,7 +83,7 @@ class Email:
         run=None,
         category='output',
         object='task',
-        server='smtp.stellarishealth.net'
+        server='SMTPRelay.montefiore.org'
     ):
         self.attachment = attachment
         self.email_list = recipients['to']
