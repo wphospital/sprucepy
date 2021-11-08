@@ -3,12 +3,17 @@ from datetime import datetime, timezone
 import subprocess
 import pytz
 import time
+import datetime as dt
 import re
 import pretty_cron
 from croniter import croniter
 
-# TODO: calculate this from system timezone
-TZ_OFFSET = int(time.localtime().tm_gmtoff / 3600)
+def _get_tz_offset(timezone=None):
+    if timezone:
+        tz = pytz.timezone(timezone)
+        return int(dt.datetime.now(tz).utcoffset().total_seconds() / 3600)
+    else:
+        return int(time.localtime().tm_gmtoff / 3600)
 
 def _get_python_path():
     return '/usr/local/bin/python3.9'
@@ -19,8 +24,10 @@ def find_job(name):
 
     return matches[0] if len(matches) > 0 else None
 
-def _convert_cron_hour(sched):
+def _convert_cron_hour(sched, timezone=None):
     if re.search(re.compile('([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?)'), sched):
+        TZ_OFFSET = _get_tz_offset(timezone=timezone)
+
         counter = 0
         for r in re.finditer('[A-z0-9/,*]+ ', sched):
             match = r
