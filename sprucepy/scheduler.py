@@ -71,19 +71,6 @@ class Scheduler:
         print('Windows not implemented!')
         return False
 
-        # Discontinuing windows because of image build issues
-        # scheduled=ws.create_task2(
-        #     name=task_name(self.task_id),
-        #     path=path,
-        #     script_args=self.runner_args(),
-        #     start_in=project_root,
-        #     python_path=None,
-        #     task_trigger=None,
-        #     start=self.start_time,
-        #     duration=None,
-        #     repetition=None
-        # )
-
     def mac_scheduler(self):
         print('Mac not implemented!')
         return False
@@ -98,28 +85,3 @@ class Scheduler:
         else:
             # TODO: Return error that OS is not supported
             pass
-
-
-# @click.command()
-# @click.argument('task_id')
-# @click.argument('user_id')
-# @click.argument('target')
-# @click.argument('start_dir')
-# @click.argument('frequency')
-# @click.argument('start_time')
-# @click.option('--script_args', default=None)
-# def main(task_id, user_id, target, start_dir, script_args):
-#     scheduler = Scheduler(
-#         task_id,
-#         user_id,
-#         target,
-#         start_dir,
-#         frequency,
-#         start_time,
-#         script_args
-#     )
-#
-#     scheduler.schedule()
-#
-# if __name__ == '__main__':
-#     main()

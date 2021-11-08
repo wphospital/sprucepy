@@ -8,7 +8,7 @@ import pretty_cron
 from croniter import croniter
 
 # TODO: calculate this from system timezone
-TZ_OFFSET = 4
+TZ_OFFSET = int(time.localtime().tm_gmtoff / 3600)
 
 def _get_python_path():
     return '/usr/local/bin/python3.9'
@@ -33,10 +33,12 @@ def _convert_cron_hour(sched):
         except ValueError as err:
             return sched
 
-        if hour_component < TZ_OFFSET:
-            new_hour = (hour_component + 24 - TZ_OFFSET).__str__()
+        if hour_component + TZ_OFFSET < 0:
+            new_hour = (hour_component + 24 + TZ_OFFSET).__str__()
+        elif hour_component + TZ_OFFSET > 23:
+            new_hour = (hour_component - 24 + TZ_OFFSET).__str__()
         else:
-            new_hour = (hour_component - TZ_OFFSET).__str__()
+            new_hour = (hour_component + TZ_OFFSET).__str__()
 
         sched_first = sched[:match.span()[0]]
         sched_last = sched[match.span()[1]:]
