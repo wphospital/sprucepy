@@ -13,7 +13,7 @@ class PackageManager:
         self.has_requirements = self._check_requirements()
         self.packages = self._get_packages()
 
-        self.pwd = self.pwd
+        self.pwd = pwd
 
         self._set_working_directory()
 
