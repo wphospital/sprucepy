@@ -14,6 +14,7 @@ from .constants import api_url, app_url
 
 from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
 from .secrets import get_secret_by_key
+from .packagemanager import PackageManager
 
 run_ept = 'runs'
 recipient_ept = 'recipients'
@@ -215,6 +216,10 @@ class Runner:
 
         # POST new run to API
         self.create_run()
+
+        # Check packages
+        p = PackageManager()
+        p.install_packages()
 
         # Get the interpreter from the file extension
         # TODO: this should work off the config file (see above)
