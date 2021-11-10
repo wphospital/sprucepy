@@ -9,9 +9,13 @@ class PackageManager:
     import_pattern = '(^from [^.][^\s]+ import .+)|(^import .+( as .+)?)'
     package_pattern = '((?<=^import )[^\s.]+)|((?<=^from )[^\s.]+)'
 
-    def __init__(self):
+    def __init__(self, pwd = '.'):
         self.has_requirements = self._check_requirements()
         self.packages = self._get_packages()
+
+        self.pwd = self.pwd
+
+        self._set_working_directory()
 
     @staticmethod
     def _get_scripts():
@@ -51,6 +55,9 @@ class PackageManager:
         else:
             print(line)
             raise Exception('Not an import statement')
+
+    def _set_working_directory(self):
+        os.chdir(self.pwd)
 
     def _get_packages(self):
         if self.has_requirements:

@@ -218,7 +218,7 @@ class Runner:
         self.create_run()
 
         # Check packages
-        p = PackageManager()
+        p = PackageManager(self.start_dir)
         p.install_packages()
 
         # Get the interpreter from the file extension
