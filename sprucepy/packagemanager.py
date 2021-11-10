@@ -92,9 +92,13 @@ class PackageManager:
         return need_install
 
     def install_packages(self):
+        print(self.has_requirements)
+
         if self.has_requirements:
             self._install_requirements()
         else:
+            print('Checking for packages')
+
             need_install = self._check_package_install()
 
             for n in need_install:
