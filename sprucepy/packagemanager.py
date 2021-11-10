@@ -81,7 +81,6 @@ class PackageManager:
         for p in self.packages:
             try:
                 importlib.import_module(p)
-                print(f'Can import {p}')
             except ImportError as e:
                 need_install.append(p)
             except ModuleNotFoundError as e:
