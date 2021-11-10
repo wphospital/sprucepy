@@ -26,7 +26,7 @@ class PackageManager:
     def _check_requirements(self):
         return os.path.exists(self.requirements)
 
-    def _install_requirements(requirements=None):
+    def _install_requirements(self, requirements=None):
         if requirements is None:
             requirements = self.requirements
 
@@ -77,7 +77,6 @@ class PackageManager:
 
     def _check_package_install(self):
         need_install = []
-
         for p in self.packages:
             try:
                 importlib.import_module(p)
