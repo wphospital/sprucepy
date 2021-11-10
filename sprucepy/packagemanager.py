@@ -76,6 +76,8 @@ class PackageManager:
         return packages
 
     def _check_package_install(self):
+        print(self.packages)
+
         need_install = []
         for p in self.packages:
             try:
@@ -84,6 +86,8 @@ class PackageManager:
                 need_install.append(p)
             except ModuleNotFoundError as e:
                 need_install.append(p)
+
+        print(need_install)
 
         return need_install
 
