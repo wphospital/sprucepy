@@ -16,10 +16,14 @@ class PackageManager:
         self.has_requirements = self._check_requirements()
         self.packages = self._get_packages()
 
+        print(self.pwd)
+
     def _get_scripts(self):
         scripts = []
         for path, dirs, files in os.walk(self.pwd):
             scripts = scripts + [os.path.join(path, f) for f in files if re.search('.py$', f)]
+
+        print(scripts)
 
         return scripts
 
