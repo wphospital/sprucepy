@@ -48,9 +48,11 @@ class PackageManager:
     def _is_import_line(self, line):
         return re.search(self.import_pattern, line) is not None
 
-    def _extract_package(self, line):
+    def _extract_packages(self, line):
         if re.search(self.package_pattern, line):
-            return re.search(self.package_pattern, line).group(0)
+            packages = re.search(self.package_pattern, line).group(0)
+
+            return packages.split(',')
         else:
             print(line)
             raise Exception('Not an import statement')
@@ -66,10 +68,11 @@ class PackageManager:
                     line = curline.strip()
 
                     if self._is_import_line(line):
-                        package = self._extract_package(line)
+                        ps = self._extract_packages(line)
 
-                        if package not in packages:
-                            packages.append(package)
+                        for p in ps:
+                            if p not in packages:
+                                packages.append(p)
 
         return packages
 
