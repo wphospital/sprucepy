@@ -16,14 +16,10 @@ class PackageManager:
         self.has_requirements = self._check_requirements()
         self.packages = self._get_packages()
 
-        print(self.pwd)
-
     def _get_scripts(self):
         scripts = []
         for path, dirs, files in os.walk(self.pwd):
             scripts = scripts + [os.path.join(path, f) for f in files if re.search('.py$', f)]
-
-        print(scripts)
 
         return scripts
 
@@ -58,8 +54,7 @@ class PackageManager:
 
             return packages.split(',')
         else:
-            print(line)
-            raise Exception('Not an import statement')
+            raise Exception(f'Not an import statement: {line}')
 
     def _get_packages(self):
         if self.has_requirements:
@@ -83,8 +78,6 @@ class PackageManager:
     def _check_package_install(self):
         need_install = []
 
-        print(self.packages)
-
         for p in self.packages:
             try:
                 importlib.import_module(p)
@@ -93,8 +86,6 @@ class PackageManager:
                 need_install.append(p)
             except ModuleNotFoundError as e:
                 need_install.append(p)
-
-        print(need_install)
 
         return need_install
 
