@@ -2,6 +2,7 @@ import os
 import subprocess
 import re
 import importlib
+from importlib.metadata import version, PackageNotFoundError
 
 
 class PackageManager:
@@ -78,16 +79,19 @@ class PackageManager:
     def _check_package_install(self):
         print(self.packages)
 
-        print()
-
         need_install = []
         for p in self.packages:
             try:
                 __import__(p)
+
+                p_vers = version(p)
+
                 print(f'Can import {p}')
             except ImportError as e:
                 need_install.append(p)
             except ModuleNotFoundError as e:
+                need_install.append(p)
+            except PackageNotFoundError as e:
                 need_install.append(p)
 
         print(need_install)
