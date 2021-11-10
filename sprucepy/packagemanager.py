@@ -71,8 +71,8 @@ class PackageManager:
                         ps = self._extract_packages(line)
 
                         for p in ps:
-                            if p not in packages:
-                                packages.append(p)
+                            if p.strip() not in packages and len(p.strip()) > 0:
+                                packages.append(p.strip())
 
         return packages
 
