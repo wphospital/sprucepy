@@ -78,15 +78,17 @@ class PackageManager:
                             if p.strip() not in packages and len(p.strip()) > 0:
                                 packages.append(p.strip())
 
-        print(packages)
-
         return packages
 
     def _check_package_install(self):
         need_install = []
+
+        print(packages)
+
         for p in self.packages:
             try:
                 importlib.import_module(p)
+                print(f'Can import {p}')
             except ImportError as e:
                 need_install.append(p)
 
