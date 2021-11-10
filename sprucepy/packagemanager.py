@@ -83,7 +83,7 @@ class PackageManager:
         need_install = []
         for p in self.packages:
             try:
-                importlib.import_module(p)
+                __import__(p)
                 print(f'Can import {p}')
             except ImportError as e:
                 need_install.append(p)
