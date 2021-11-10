@@ -10,27 +10,26 @@ class PackageManager:
     package_pattern = '((?<=^import )[^\s.]+)|((?<=^from )[^\s.]+)'
 
     def __init__(self, pwd = '.'):
+        self.pwd = pwd
+
+        self.requirements = os.path.join(self.pwd, 'requirements.txt')
         self.has_requirements = self._check_requirements()
         self.packages = self._get_packages()
 
-        self.pwd = pwd
-
-        self._set_working_directory()
-
-    @staticmethod
-    def _get_scripts():
+    def _get_scripts(self):
         scripts = []
-        for path, dirs, files in os.walk('.'):
+        for path, dirs, files in os.walk(self.pwd):
             scripts = scripts + [os.path.join(path, f) for f in files if re.search('.py$', f)]
 
         return scripts
 
-    @staticmethod
-    def _check_requirements():
-        return os.path.exists('requirements.txt')
+    def _check_requirements(self):
+        return os.path.exists(self.requirements)
 
-    @staticmethod
-    def _install_requirements(requirements='requirements.txt'):
+    def _install_requirements(requirements=None):
+        if requirements is None:
+            requirements = self.requirements
+
         subprocess.run(['pip', 'install', '-r', requirements])
 
     @staticmethod
@@ -55,9 +54,6 @@ class PackageManager:
         else:
             print(line)
             raise Exception('Not an import statement')
-
-    def _set_working_directory(self):
-        os.chdir(self.pwd)
 
     def _get_packages(self):
         if self.has_requirements:
