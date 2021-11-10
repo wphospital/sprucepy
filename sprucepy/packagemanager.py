@@ -91,6 +91,8 @@ class PackageManager:
                 print(f'Can import {p}')
             except ImportError as e:
                 need_install.append(p)
+            except ModuleNotFoundError as e:
+                need_install.append(p)
 
         print(need_install)
 
