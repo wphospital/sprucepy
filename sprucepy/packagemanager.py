@@ -78,6 +78,8 @@ class PackageManager:
                             if p.strip() not in packages and len(p.strip()) > 0:
                                 packages.append(p.strip())
 
+        print(packages)
+
         return packages
 
     def _check_package_install(self):
@@ -95,6 +97,8 @@ class PackageManager:
             self._install_requirements()
         else:
             need_install = self._check_package_install()
+
+            print(need_install)
 
             for n in need_install:
                 self._install_package(n)
