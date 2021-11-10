@@ -83,7 +83,7 @@ class PackageManager:
     def _check_package_install(self):
         need_install = []
 
-        print(packages)
+        print(self.packages)
 
         for p in self.packages:
             try:
@@ -92,6 +92,8 @@ class PackageManager:
             except ImportError as e:
                 need_install.append(p)
 
+        print(need_install)
+
         return need_install
 
     def install_packages(self):
@@ -99,8 +101,6 @@ class PackageManager:
             self._install_requirements()
         else:
             need_install = self._check_package_install()
-
-            print(need_install)
 
             for n in need_install:
                 self._install_package(n)
