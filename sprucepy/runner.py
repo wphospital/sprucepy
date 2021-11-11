@@ -83,6 +83,10 @@ class Runner:
         self.script_args = kwargs.get('script_args')
         self.status_running = False
 
+        # To avoid missing attribut errors
+        self.stderr = None
+        self.stdout = None
+
         self.valid = os.path.exists(os.path.join(self.start_dir, self.target))
 
         # TODO: hit Spruce endpoint to get env_vars
@@ -169,8 +173,6 @@ class Runner:
         # TODO: change API to query params like Recipients??
         ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
 
-        print(res)
-
         status = RETURN_CODES.get(res.returncode, 'fail')
 
         if status == 'fail':
@@ -178,9 +180,6 @@ class Runner:
 
         error = self.stderr
         output = self.stdout
-
-        print(error)
-        print(output)
 
         payload = dict(
             end_time=datetime.now(timezone.utc),
@@ -233,16 +232,11 @@ class Runner:
         run_start = self.run_start.astimezone(pytz.timezone(
             'America/New_York')).strftime('%m/%d/%Y %H:%M:%S')
 
-        print(res.stderr)
-
         # Formats the error message template with run-specific strings
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
         error_str = self.stderr.replace('\n', '<br>')
-        # error_str = res.stderr
-
-        print(error_str)
 
         body = template.format(
             run_url=run_url,
