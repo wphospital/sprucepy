@@ -330,7 +330,7 @@ class Runner:
         self.process_id_on_run(res.pid)
 
         # wait for the process to finish
-        res.wait()
+        res = res.wait()
 
         # os.chdir(original_dir)
         self.complete_run(res)
