@@ -31,6 +31,19 @@ RETURN_CODES = {
 }
 
 
+def send_timeout(run_id):
+    ept = urljoin(api_url, run_ept) + '/' + run_id.__str__()
+
+    status = RETURN_CODES.get(420, 'fail')
+
+    payload = dict(
+        status=status,
+        return_code=420,
+        pid=-1,
+    )
+
+    requests.patch(ept, data=payload)
+
 def kill(proc_pid, run_id):
     """Kills a process by PID
 
@@ -38,25 +51,20 @@ def kill(proc_pid, run_id):
         proc_pid (int): PID of the process to kill
     """
 
+    if proc_id is None:
+        send_timeout(run_id)
+
+        return
+
     try:
         process = psutil.Process(proc_pid)
 
         for proc in process.children(recursive=True):
             proc.kill()
+
         process.kill()
     except psutil.NoSuchProcess:
-        ept = urljoin(api_url, run_ept) + '/' + run_id.__str__()
-
-        status = RETURN_CODES.get(420, 'fail')
-
-        payload = dict(
-            end_time=datetime.now(timezone.utc),
-            status=status,
-            return_code=99,
-            pid=-1,
-        )
-
-        requests.patch(ept, data=payload)
+        send_timeout(run_id)
 
 
 class Runner:
@@ -228,7 +236,11 @@ class Runner:
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
-        error_str = res.stderr.getvalue()
+        # error_str = res.stderr.getvalue()
+        error_str = res.stderr
+
+        print(error_str)
+
         body = template.format(
             run_url=run_url,
             task_url=task_url,
