@@ -11,6 +11,7 @@ from urllib.parse import urljoin
 from datetime import datetime, timezone
 import pytz
 from .constants import api_url, app_url
+import psutil
 
 from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
 from .secrets import get_secret_by_key
@@ -26,6 +27,13 @@ DEFAULT_USER = 1
 
 class Runner:
     def __init__(self, **kwargs):
+        """Initializes the Runner class
+            Target: the file that should be executed by runner
+            task_id: the task id of the task to be executed (will be passed to API)
+            user: the user id of the user who is executing the task (will be passed to API)
+            start_dir: the directory where the target file should be executed
+            script_args: the arguments to be passed to the target file
+        """
         self.target = kwargs.get('target')
         self.task_id = kwargs.get('task_id')
         self.user = kwargs.get('user', DEFAULT_USER)
@@ -65,6 +73,17 @@ class Runner:
             )
             requests.patch(ept, data=payload)
             time.sleep(frequency)
+
+    def kill(proc_pid):
+        """Kills a process by PID
+
+        Args:
+            proc_pid (int): PID of the process to kill
+        """
+        process = psutil.Process(proc_pid)
+        for proc in process.children(recursive=True):
+            proc.kill()
+        process.kill()
 
     def start_heartbeat(self, frequency=10):
         """Send a heartbeat to the API
@@ -133,8 +152,22 @@ class Runner:
             error_text=error,
             output_text=output,
             return_code=res.returncode,
+            pid=None,
         )
         self.status_running = False
+        requests.patch(ept, data=payload)
+
+    def process_id_on_run(self, pid):
+        """Sets the process ID of the run
+
+        Args:
+            res (CompletedProcess): the CompletedProcess object returned by subprocess.run
+        """
+        ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
+
+        payload = dict(
+            pid=pid
+        )
         requests.patch(ept, data=payload)
 
     def notify_failure(self, res):
@@ -249,8 +282,10 @@ class Runner:
             for k, v in self.env_vars.items():
                 sub_env[k] = get_secret_by_key(v)
 
-        res = subprocess.run('cd {} && {} {}'.format(self.start_dir, interpreter, full_target),
-                             stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
+        res = subprocess.Popen('cd {} && {} {}'.format(self.start_dir, interpreter, full_target),
+                               stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
+
+        self.process_id_on_run(res.pid)
 
         # os.chdir(original_dir)
         self.complete_run(res)
