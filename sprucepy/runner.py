@@ -51,7 +51,7 @@ def kill(proc_pid, run_id):
         proc_pid (int): PID of the process to kill
     """
 
-    if proc_id is None:
+    if proc_pid is None:
         send_timeout(run_id)
 
         return
