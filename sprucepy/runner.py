@@ -176,8 +176,8 @@ class Runner:
         if status == 'fail':
             self.notify_failure(res)
 
-        error = res.stderr
-        output = res.stdout
+        error = res.stderr.read()
+        output = res.stdout.read()
 
         payload = dict(
             end_time=datetime.now(timezone.utc),
@@ -236,7 +236,7 @@ class Runner:
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
-        error_str = res.stderr.read()
+        error_str = res.stderr.read().decode('ascii').replace('\n', '<br>')
         # error_str = res.stderr
 
         print(error_str)
