@@ -74,6 +74,7 @@ class Runner:
             requests.patch(ept, data=payload)
             time.sleep(frequency)
 
+    @staticmethod
     def kill(proc_pid):
         """Kills a process by PID
 
