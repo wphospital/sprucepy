@@ -25,6 +25,18 @@ task_secret_ept = 'task_secrets'
 DEFAULT_USER = 1
 
 
+def kill(proc_pid):
+    """Kills a process by PID
+
+    Args:
+        proc_pid (int): PID of the process to kill
+    """
+    process = psutil.Process(proc_pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
+
+
 class Runner:
     def __init__(self, **kwargs):
         """Initializes the Runner class
@@ -73,18 +85,6 @@ class Runner:
             )
             requests.patch(ept, data=payload)
             time.sleep(frequency)
-
-    @staticmethod
-    def kill(proc_pid):
-        """Kills a process by PID
-
-        Args:
-            proc_pid (int): PID of the process to kill
-        """
-        process = psutil.Process(proc_pid)
-        for proc in process.children(recursive=True):
-            proc.kill()
-        process.kill()
 
     def start_heartbeat(self, frequency=10):
         """Send a heartbeat to the API
