@@ -176,8 +176,8 @@ class Runner:
         if status == 'fail':
             self.notify_failure(res)
 
-        error = res.stderr.read()
-        output = res.stdout.read()
+        error = res.stderr
+        output = res.stdout
 
         payload = dict(
             end_time=datetime.now(timezone.utc),
