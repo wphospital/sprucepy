@@ -3,6 +3,7 @@ import subprocess
 import re
 import pkgutil
 import sys
+from .constants import ineligible_packages
 
 
 class PackageManager:
@@ -53,7 +54,7 @@ class PackageManager:
         if re.search(self.package_pattern, line):
             packages = re.search(self.package_pattern, line).group(0)
 
-            return packages.split(',')
+            return [p.strip() for p in packages.split(',')]
         else:
             raise Exception(f'Not an import statement: {line}')
 
@@ -71,8 +72,8 @@ class PackageManager:
                         ps = self._extract_packages(line)
 
                         for p in ps:
-                            if p.strip() not in packages and len(p.strip()) > 0:
-                                packages.append(p.strip())
+                            if p not in packages and len(p) > 0 and p not in ineligible_packages:
+                                packages.append(p)
 
         return packages
 
