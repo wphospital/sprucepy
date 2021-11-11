@@ -152,7 +152,7 @@ class Runner:
             error_text=error,
             output_text=output,
             return_code=res.returncode,
-            pid=None,
+            pid=-1,
         )
         self.status_running = False
         requests.patch(ept, data=payload)
