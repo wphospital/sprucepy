@@ -236,8 +236,8 @@ class Runner:
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
-        # error_str = res.stderr.getvalue()
-        error_str = res.stderr
+        error_str = res.stderr.read()
+        # error_str = res.stderr
 
         print(error_str)
 
