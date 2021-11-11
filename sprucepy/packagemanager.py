@@ -3,7 +3,7 @@ import subprocess
 import re
 import pkgutil
 import sys
-from constants import ineligible_packages # TODO: add back in relative reference dot
+from .constants import ineligible_packages # TODO: add back in relative reference dot
 
 
 class PackageManager:
