@@ -1,8 +1,8 @@
 import os
 import subprocess
 import re
-import importlib
-from importlib.metadata import version, PackageNotFoundError
+import pkgutil
+import sys
 
 
 class PackageManager:
@@ -79,20 +79,9 @@ class PackageManager:
     def _check_package_install(self):
         print(self.packages)
 
-        need_install = []
-        for p in self.packages:
-            try:
-                __import__(p)
+        importable = [m.name for m in pkgutil.iter_modules()] + list(sys.builtin_module_names)
 
-                p_vers = version(p)
-
-                print(f'Can import {p}')
-            except ImportError as e:
-                need_install.append(p)
-            except ModuleNotFoundError as e:
-                need_install.append(p)
-            except PackageNotFoundError as e:
-                need_install.append(p)
+        need_install = list(set(self.packages) - set(importable))
 
         print(need_install)
 
