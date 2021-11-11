@@ -24,6 +24,11 @@ task_secret_ept = 'task_secrets'
 
 DEFAULT_USER = 1
 
+RETURN_CODES = {
+    0: 'success',
+    -9: 'killed',
+}
+
 
 def kill(proc_pid):
     """Kills a process by PID
@@ -139,7 +144,7 @@ class Runner:
         # TODO: change API to query params like Recipients??
         ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
 
-        status = 'fail' if res.returncode > 0 else 'success'
+        status = RETURN_CODES.get(res.returncode, 'fail')
 
         if status == 'fail':
             self.notify_failure(res)
