@@ -144,6 +144,8 @@ class Runner:
         # TODO: change API to query params like Recipients??
         ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
 
+        print(res)
+
         status = RETURN_CODES.get(res.returncode, 'fail')
 
         if status == 'fail':
@@ -202,6 +204,8 @@ class Runner:
         task_title = recipient_list[0]['task_name']
         run_start = self.run_start.astimezone(pytz.timezone(
             'America/New_York')).strftime('%m/%d/%Y %H:%M:%S')
+
+        print(res.stderr)
 
         # Formats the error message template with run-specific strings
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()

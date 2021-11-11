@@ -97,12 +97,7 @@ class PackageManager:
     def _check_package_install(self):
         importable = [m.name for m in pkgutil.iter_modules()] + list(sys.builtin_module_names)
 
-        print(self.packages)
-        print(importable)
-
         need_install = list(set(self.packages) - set(importable))
-
-        print(need_install)
 
         return need_install
 
