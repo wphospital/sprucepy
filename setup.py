@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sprucepy",
-    version="0.0.5",
+    version="0.0.6",
     author="Jon Sege",
     author_email="jsege@wphospital.org",
     description="Spruce package",
