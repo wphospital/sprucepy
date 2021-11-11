@@ -27,19 +27,36 @@ DEFAULT_USER = 1
 RETURN_CODES = {
     0: 'success',
     -9: 'killed',
+    420: 'timeout',
 }
 
 
-def kill(proc_pid):
+def kill(proc_pid, run_id):
     """Kills a process by PID
 
     Args:
         proc_pid (int): PID of the process to kill
     """
-    process = psutil.Process(proc_pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
+
+    try:
+        process = psutil.Process(proc_pid)
+
+        for proc in process.children(recursive=True):
+            proc.kill()
+        process.kill()
+    except psutil.NoSuchProcess:
+        ept = urljoin(api_url, run_ept) + '/' + run_id.__str__()
+
+        status = RETURN_CODES.get(420, 'fail')
+
+        payload = dict(
+            end_time=datetime.now(timezone.utc),
+            status=status,
+            return_code=99,
+            pid=-1,
+        )
+
+        requests.patch(ept, data=payload)
 
 
 class Runner:
@@ -210,12 +227,14 @@ class Runner:
         # Formats the error message template with run-specific strings
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
+        # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
+        error_str = res.stderr.getvalue()
         body = template.format(
             run_url=run_url,
             task_url=task_url,
             task=task_title,
             task_start_time=run_start,
-            error=res.stderr.decode('ascii').replace('\n', '<br>')
+            error=error_str
         )
 
         sms_body = "Spruce Error in {task}: {task_url}: {run_url}. {task_start_time}".format(
@@ -292,7 +311,7 @@ class Runner:
             for k, v in self.env_vars.items():
                 sub_env[k] = get_secret_by_key(v)
 
-        res = subprocess.Popen('cd {} && {} {}'.format(self.start_dir, interpreter, full_target).split(' '),
+        res = subprocess.Popen('cd {} && {} {}'.format(self.start_dir, interpreter, full_target),
                                stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
 
         # set the process ID of the run
