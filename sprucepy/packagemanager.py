@@ -32,6 +32,9 @@ class PackageManager:
         if requirements is None:
             requirements = self.requirements
 
+        # TODO: installing requirements with git+ references will fail under
+        # Cron because there is no git user / password to authenticate
+        # on the repo
         subprocess.run(['pip', 'install', '-r', requirements])
 
     @staticmethod
@@ -59,8 +62,10 @@ class PackageManager:
             raise Exception(f'Not an import statement: {line}')
 
     def _get_packages(self):
-        if self.has_requirements:
-            return
+        # TODO: Only do this if guaranteed that self.has_requirements
+        # leads to _install_requirements
+        # if self.has_requirements:
+        #     return
 
         packages = []
         for s in self._get_scripts():
