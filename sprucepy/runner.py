@@ -169,6 +169,7 @@ class Runner:
         # TODO: change API to query params like Recipients??
         ept = urljoin(api_url, run_ept) + '/' + self.run_id.__str__()
 
+        print('1')
         print(res)
 
         status = RETURN_CODES.get(res.returncode, 'fail')
@@ -176,8 +177,11 @@ class Runner:
         if status == 'fail':
             self.notify_failure(res)
 
-        error = res.stderr
-        output = res.stdout
+        print('2')
+        print(res)
+
+        error = res.stderr.read().decode('ascii')
+        output = res.stdout.read().decode('ascii')
 
         payload = dict(
             end_time=datetime.now(timezone.utc),
@@ -236,7 +240,7 @@ class Runner:
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
-        error_str = res.stderr.read().decode('ascii').replace('\n', '<br>')
+        error_str = res.stderr.read().decode('ascii')
         # error_str = res.stderr
 
         print(error_str)
