@@ -176,8 +176,8 @@ class Runner:
         if status == 'fail':
             self.notify_failure(res)
 
-        error = res.stderr.read().decode('ascii')
-        output = res.stdout.read().decode('ascii')
+        error = self.stderr
+        output = self.stdout
 
         print(error)
         print(output)
@@ -239,7 +239,7 @@ class Runner:
         run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
         task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
-        error_str = res.stderr.read().decode('ascii').replace('\n', '<br>')
+        error_str = self.stderr.replace('\n', '<br>')
         # error_str = res.stderr
 
         print(error_str)
@@ -334,6 +334,8 @@ class Runner:
 
         # wait for the process to finish
         res.wait()
+
+        self.stderr, self.stdout = res.stderr.read().decode('ascii'), self.stdout.read().decode('ascii')
 
         # os.chdir(original_dir)
         self.complete_run(res)
