@@ -98,7 +98,7 @@ class PackageManager:
         importable = [m.name for m in pkgutil.iter_modules()] + list(sys.builtin_module_names)
 
         print(self.packages)
-        print(self.importable)
+        print(importable)
 
         need_install = list(set(self.packages) - set(importable))
 
