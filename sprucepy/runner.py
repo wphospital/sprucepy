@@ -285,7 +285,11 @@ class Runner:
         res = subprocess.Popen('cd {} && {} {}'.format(self.start_dir, interpreter, full_target),
                                stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
 
+        # set the process ID of the run
         self.process_id_on_run(res.pid)
+
+        # wait for the process to finish
+        res.wait()
 
         # os.chdir(original_dir)
         self.complete_run(res)
