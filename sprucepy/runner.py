@@ -335,7 +335,8 @@ class Runner:
         # wait for the process to finish
         res.wait()
 
-        self.stderr, self.stdout = res.stderr.read().decode('ascii'), self.stdout.read().decode('ascii')
+        self.stderr = res.stderr.read().decode('ascii')
+        self.stdout = res.stdout.read().decode('ascii')
 
         # os.chdir(original_dir)
         self.complete_run(res)
