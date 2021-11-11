@@ -292,7 +292,7 @@ class Runner:
             for k, v in self.env_vars.items():
                 sub_env[k] = get_secret_by_key(v)
 
-        res = subprocess.Popen(['cd {} && {} {}'.format(self.start_dir, interpreter, full_target)].split(' '),
+        res = subprocess.Popen('cd {} && {} {}'.format(self.start_dir, interpreter, full_target).split(' '),
                                stdout=PIPE, stderr=PIPE, shell=True, env=sub_env)
 
         # set the process ID of the run
