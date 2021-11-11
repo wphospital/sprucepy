@@ -3,12 +3,12 @@ import subprocess
 import re
 import pkgutil
 import sys
-from .constants import ineligible_packages
+from constants import ineligible_packages # TODO: add back in relative reference dot
 
 
 class PackageManager:
     # regex pattern for an import line
-    import_pattern = '(^from [^.][^\s]+ import .+)|(^import .+( as .+)?)'
+    import_pattern = '(^from [^.][^\s]+ import .+)|(^import [^.].+( as .+)?)'
     package_pattern = '((?<=^import )[^\s.]+)|((?<=^from )[^\s.]+)'
 
     def __init__(self, pwd = '.'):
@@ -16,7 +16,14 @@ class PackageManager:
 
         self.requirements = os.path.join(self.pwd, 'requirements.txt')
         self.has_requirements = self._check_requirements()
+
+        self.script_paths = self._get_scripts()
+        self.script_names = self._get_script_names()
         self.packages = self._get_packages()
+
+    @staticmethod
+    def _get_fn_from_path(fp):
+        return os.path.splitext(os.path.basename(fp))[0].strip()
 
     def _get_scripts(self):
         scripts = []
@@ -24,6 +31,9 @@ class PackageManager:
             scripts = scripts + [os.path.join(path, f) for f in files if re.search('.py$', f)]
 
         return scripts
+
+    def _get_script_names(self):
+        return [self._get_fn_from_path(fp) for fp in self.script_paths]
 
     def _check_requirements(self):
         return os.path.exists(self.requirements)
@@ -68,7 +78,7 @@ class PackageManager:
         #     return
 
         packages = []
-        for s in self._get_scripts():
+        for s in self.script_paths:
             with open(s, 'r') as file:
                 for curline in file:
                     line = curline.strip()
@@ -77,7 +87,7 @@ class PackageManager:
                         ps = self._extract_packages(line)
 
                         for p in ps:
-                            if p not in packages and len(p) > 0 and p not in ineligible_packages:
+                            if p not in packages and len(p) > 0 and p not in ineligible_packages and p not in self.script_names:
                                 packages.append(p)
 
         return packages
