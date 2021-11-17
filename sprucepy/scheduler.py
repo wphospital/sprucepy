@@ -57,17 +57,6 @@ class Scheduler:
         return runner_args
 
     def linux_scheduler(self):
-        # scheduled = ls.create_task(
-        #     name = task_name(self.task_id),
-        #     path = path,
-        #     script_args = self.runner_args(),
-        #     start_in=project_root,
-        #     python_path=None,
-        #     frequency=self.frequency,
-        #     start=self.start_time,
-        #     interval=self.interval
-        # )
-
         scheduled = ls.create_task(
             name=task_name(self.task_id),
             task_id=self.task_id,

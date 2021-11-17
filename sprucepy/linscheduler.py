@@ -114,9 +114,6 @@ def remove_job(name):
 
 def create_task(
     name,
-    # path,
-    # script_args = None,
-    # start_in = None,
     task_id,
     python_path=None,
     frequency=None,
@@ -131,13 +128,6 @@ def create_task(
 
     if frequency is None:
         return
-
-    # Combine task and arguments
-    # task = 'cd ' + start_in + \
-    #     ' && ' + \
-    #     python_path + ' -m ' \
-    #     + path + ' ' + \
-    #     script_args if script_args else None
 
     task = python_path + ' -m ' + 'sprucepy.api execute {}'.format(task_id)
 
