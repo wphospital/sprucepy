@@ -1,12 +1,12 @@
 import requests
 import click
 
-spruce_api = 'https://localhost:1592/api/v1/'
-execute_ept = 'execute/{}'
+spruce_api = 'http://localhost:1592/api/v1/'
+execute_ept = 'tasks/execute/{}'
 
 
 def run_from_api(task_id):
-    requests.get(spruce_api + execute_ept.format(task_id))
+    return requests.get(spruce_api + execute_ept.format(task_id))
 
 
 @click.command()
