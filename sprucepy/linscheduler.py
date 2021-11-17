@@ -123,8 +123,8 @@ def create_task(
     start=None,
     interval=None
 ):
-    if python_path is None:
-        python_path = _get_python_path()
+    # if python_path is None:
+    #     python_path = _get_python_path()
 
     # Remove the job if it exists
     remove_job(name)
