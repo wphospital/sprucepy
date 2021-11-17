@@ -56,6 +56,9 @@ class Runner:
         self.user = kwargs.get('user', DEFAULT_USER)
         self.start_dir = kwargs.get('start_dir', os.getcwd())
         self.script_args = kwargs.get('script_args')
+        self.git_repo = kwargs.get('git_repo')
+        self.git_hash = kwargs.get('git_hash')
+        self.test_run = kwargs.get('test_run', False)
         self.status_running = False
 
         self.valid = os.path.exists(os.path.join(self.start_dir, self.target))
@@ -126,7 +129,11 @@ class Runner:
             task=self.task_id,
             start_time=self.run_start,
             created_by=self.user,
-            status='in progress'
+            status='in progress',
+            git_repo=self.git_repo,
+            git_hash=self.git_hash,
+            test_run=self.test_run,
+            script_args=self.script_args,
         )
 
         r = requests.post(ept, data=data)
