@@ -44,6 +44,7 @@ def send_timeout(run_id):
 
     requests.patch(ept, data=payload)
 
+
 def kill(proc_pid, run_id):
     """Kills a process by PID
 

@@ -10,16 +10,20 @@ path = 'sprucepy.runner'
 
 system = platform.system()
 
+
 def task_name(task_id):
     return f'SpruceTask_{task_id}'
+
 
 def get_next(task_id):
     if system == 'Linux':
         return ls.get_next_run(task_name(task_id))
 
+
 def get_current_schedule(task_id):
     if system == 'Linux':
         return ls.get_current_schedule(task_name(task_id))
+
 
 class Scheduler:
     def __init__(
@@ -31,7 +35,7 @@ class Scheduler:
         frequency,
         start_time,
         interval,
-        script_args = ''
+        script_args=''
     ):
         self.task_id = task_id
         self.user_id = user_id
@@ -52,14 +56,21 @@ class Scheduler:
 
         return runner_args
 
-
     def linux_scheduler(self):
+        # scheduled = ls.create_task(
+        #     name = task_name(self.task_id),
+        #     path = path,
+        #     script_args = self.runner_args(),
+        #     start_in=project_root,
+        #     python_path=None,
+        #     frequency=self.frequency,
+        #     start=self.start_time,
+        #     interval=self.interval
+        # )
+
         scheduled = ls.create_task(
-            name = task_name(self.task_id),
-            path = path,
-            script_args = self.runner_args(),
-            start_in=project_root,
-            python_path=None,
+            name=task_name(self.task_id),
+            task_id=self.task_id,
             frequency=self.frequency,
             start=self.start_time,
             interval=self.interval

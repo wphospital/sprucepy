@@ -8,6 +8,7 @@ import re
 import pretty_cron
 from croniter import croniter
 
+
 def _get_tz_offset(timezone=None):
     if timezone:
         tz = pytz.timezone(timezone)
@@ -15,14 +16,17 @@ def _get_tz_offset(timezone=None):
     else:
         return int(time.localtime().tm_gmtoff / 3600)
 
+
 def _get_python_path():
     return '/usr/local/bin/python3.9'
+
 
 def find_job(name):
     c = CronTab(user='root')
     matches = list(c.find_comment(name))
 
     return matches[0] if len(matches) > 0 else None
+
 
 def _convert_cron_hour(sched, timezone=None):
     if re.search(re.compile('([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?)'), sched):
@@ -54,11 +58,12 @@ def _convert_cron_hour(sched, timezone=None):
 
     return sched
 
-def get_current_schedule(name, prettify = True):
+
+def get_current_schedule(name, prettify=True):
     job = find_job(name)
 
     if job is None:
-         return 'Not scheduled'
+        return 'Not scheduled'
 
     sched_pat = re.compile('((?<=@)\w+)|(([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?))')
 
@@ -71,6 +76,7 @@ def get_current_schedule(name, prettify = True):
     else:
         return sched_str.title()
 
+
 def get_next_run(name):
     # Check if the cron service is running
     res = subprocess.run(
@@ -82,7 +88,7 @@ def get_next_run(name):
     if 'failed' in res.stdout.decode():
         return 'Cron is not running!'
 
-    sched = get_current_schedule(name, prettify = False)
+    sched = get_current_schedule(name, prettify=False)
 
     utc_now = datetime.now(tz=timezone.utc)
 
@@ -97,6 +103,7 @@ def get_next_run(name):
 
     return
 
+
 def remove_job(name):
     job = find_job(name)
 
@@ -104,12 +111,14 @@ def remove_job(name):
         with CronTab(user='root') as cron:
             cron.remove(job)
 
+
 def create_task(
     name,
-    path,
-    script_args = None,
-    start_in = None,
-    python_path=None,
+    # path,
+    # script_args = None,
+    # start_in = None,
+    # python_path=None,
+    task_id,
     frequency=None,
     start=None,
     interval=None
@@ -124,11 +133,13 @@ def create_task(
         return
 
     # Combine task and arguments
-    task = 'cd ' + start_in + \
-        ' && ' + \
-        python_path + ' -m ' \
-        + path + ' ' + \
-        script_args if script_args else None
+    # task = 'cd ' + start_in + \
+    #     ' && ' + \
+    #     python_path + ' -m ' \
+    #     + path + ' ' + \
+    #     script_args if script_args else None
+
+    task = 'sprucepy.api execute {}'.format(task_id)
 
     with CronTab(user='root') as cron:
         # Check if a job for this task already exists
