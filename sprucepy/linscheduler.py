@@ -117,14 +117,14 @@ def create_task(
     # path,
     # script_args = None,
     # start_in = None,
-    # python_path=None,
     task_id,
+    python_path=None,
     frequency=None,
     start=None,
     interval=None
 ):
-    # if python_path is None:
-    #     python_path = _get_python_path()
+    if python_path is None:
+        python_path = _get_python_path()
 
     # Remove the job if it exists
     remove_job(name)
@@ -139,7 +139,7 @@ def create_task(
     #     + path + ' ' + \
     #     script_args if script_args else None
 
-    task = 'sprucepy.api execute {}'.format(task_id)
+    task = python_path + ' -m ' + 'sprucepy.api execute {}'.format(task_id)
 
     with CronTab(user='root') as cron:
         # Check if a job for this task already exists
