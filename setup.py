@@ -24,6 +24,7 @@ setuptools.setup(
         'click',
         'pretty_cron',
         'croniter',
-        'boto3'
+        'boto3',
+        'psutil'
     ]
 )
