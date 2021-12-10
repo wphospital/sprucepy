@@ -242,8 +242,8 @@ class Runner:
             'America/New_York')).strftime('%m/%d/%Y %H:%M:%S')
 
         # Formats the error message template with run-specific strings
-        run_url = urljoin(app_url, 'tasks/runs/') + self.run_id.__str__()
-        task_url = urljoin(app_url, 'tasks/') + self.task_id.__str__()
+        run_url = urljoin(self.hostname, 'tasks/runs/') + self.run_id.__str__()
+        task_url = urljoin(self.hostname, 'tasks/') + self.task_id.__str__()
         # error_str=res.stderr.decode('ascii').replace('\n', '<br>')
         error_str = self.stderr.replace('\n', '<br>')
 
