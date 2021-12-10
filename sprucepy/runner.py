@@ -86,6 +86,7 @@ class Runner:
         self.git_hash = kwargs.get('git_hash')
         self.test_run = kwargs.get('test_run', False)
         self.status_running = False
+        self.hostname = kwargs.get('app_hostname', app_url)
 
         # To avoid missing attribut errors
         self.stderr = None
