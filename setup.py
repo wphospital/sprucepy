@@ -25,6 +25,7 @@ setuptools.setup(
         'pretty_cron',
         'croniter',
         'boto3',
-        'psutil'
+        'psutil',
+        'pytz'
     ]
 )
