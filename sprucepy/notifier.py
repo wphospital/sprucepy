@@ -18,6 +18,9 @@ recipient_ept = 'recipients'
 
 
 def get_recipients(task_id, category, api_url=api_url):
+    if task_id is None:
+        return [{}]
+
     # Get the list to notify from the task
     ept = urljoin(api_url, recipient_ept)
 
