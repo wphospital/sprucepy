@@ -13,6 +13,8 @@ import pytz
 from .constants import api_url, app_url
 import psutil
 
+import warnings
+
 from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
 from .secrets import get_secret_by_key
 from .packagemanager import PackageManager
@@ -278,16 +280,18 @@ class Runner:
                 run=self.run_id,
                 category='error',
                 object='task').send()
-        except:
-            txt_error = Email(
-                recipients=emails,
-                body="SMS Failed to Send on Error",
-                from_email='noreply@wphospital.org',
-                subject='Notifcation Failure',
-                run=self.run_id,
-                category='error',
-                object='task'
-            ).build_and_send()
+        except Exception as err:
+            warnings.warn(str(err))
+            
+            # txt_error = Email(
+            #     recipients=emails,
+            #     body="SMS Failed to Send on Error",
+            #     from_email='noreply@wphospital.org',
+            #     subject='Notifcation Failure',
+            #     run=self.run_id,
+            #     category='error',
+            #     object='task'
+            # ).build_and_send()
 
     # Run the target script
     def run(self):
