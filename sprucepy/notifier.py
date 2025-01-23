@@ -49,21 +49,6 @@ def get_recipient_emails(recipient_list=None, task_id=None, category=None, api_u
     return emails
 
 
-def get_recipient_phones(recipient_list=None, task_id=None, category=None, api_url=api_url):
-    if recipient_list is None:
-        recipient_list = get_recipients(task_id, category, api_url=api_url)
-
-    # Get the phones as a dict with structure
-    # send_line: [(id, phone)], as needed for the SMS class
-    phones = []
-
-    for d in recipient_list:
-        if d['mode'] == 'sms' and d['phone']:
-            phones.append((d['person'], d['phone']))
-
-    return phones
-
-
 def get_recipient_attrs(attr, recipient_list=None, task_id=None, category=None, api_url=api_url):
     if recipient_list is None:
         recipient_list = get_recipients(task_id, category, api_url=api_url)
@@ -211,66 +196,3 @@ class Email:
                 )
 
                 requests.post(ept, data=payload)
-
-
-class SMS:
-    def __init__(
-        self,
-        recipients,
-        body,
-        sms_broker='aws',
-        run=None,
-        category='output',
-        object='task',
-    ):
-        self.sms_broker = sms_broker
-        self.recipients = recipients
-        self.msg = body
-        self.run = run
-        self.category = category
-        self.object = object
-        self.mode = 'sms'
-
-    def send(self):
-        if self.sms_broker == 'aws':
-            self.send_sms_aws()
-
-    def send_sms_aws(self, msg=None):
-        if msg is None:
-            msg = self.msg
-
-        ept = urljoin(api_url, notification_ept)
-        # Send a POST to the API recording the send
-        for sendto in set(self.recipients):
-            payload = dict(
-                run=self.run,
-                person=sendto[0],
-                category=self.category,
-                object=self.object,
-                mode=self.mode,
-                body=self.msg,
-                return_code=0
-            )
-
-        requests.post(ept, data=payload)
-
-        aws_access_key_id = get_secret_by_key(
-            'aws_access_key_id', api_url='http://10.16.8.20:1592/api/v1/')
-        aws_secret_access_key = get_secret_by_key(
-            'aws_secret_access_key', api_url='http://10.16.8.20:1592/api/v1/')
-
-        # Create an SNS client
-        client = boto3.client(
-            "sns",
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            region_name="us-east-1"
-        )
-
-        # Send your sms message.
-        for recipient in self.recipients:
-            print(recipient[1])
-            client.publish(
-                PhoneNumber="+1{}".format(recipient[1]),
-                Message=self.msg
-            )

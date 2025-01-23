@@ -15,7 +15,7 @@ import psutil
 
 import warnings
 
-from .notifier import Email, get_recipient_emails, get_recipients, get_recipient_phones, SMS
+from .notifier import Email, get_recipient_emails, get_recipients
 from .secrets import get_secret_by_key
 from .packagemanager import PackageManager
 
@@ -219,20 +219,15 @@ class Runner:
     def notify_failure(self, res):
         """In the event of a run failure, retrieves a list of individuals
         subscribed to receive error notifications and sends via the
-        relevant modes (email or SMS)
+        relevant modes (email)
         """
 
         recipient_list = get_recipients(self.task_id, 'error')
         emails = get_recipient_emails(recipient_list)
-        #phones = get_recipient_phones(recipient_list)
 
         # If there are no recipients, do nothing
         if len(recipient_list) == 0:
             return
-
-        # Get the phones as (id, phone) tuples needed for the SMS class
-        phones = [(d['person'], d['phone'])
-                  for d in recipient_list if d['mode'] == 'sms' and d['phone']]
 
         # Retrieves the error message template
         with open('templates/error_email.html', 'r') as file:
@@ -257,9 +252,6 @@ class Runner:
             error=error_str
         )
 
-        sms_body = "Spruce Error in {task}: {task_url}: {run_url}. {task_start_time}".format(
-            task=task_title, run_url=run_url, task_url=task_url, task_start_time=run_start)
-
         # Send emails via the Email class in notifier module
         e = Email(
             recipients=emails,
@@ -270,28 +262,6 @@ class Runner:
             category='error',
             object='task'
         ).build_and_send()
-
-        # Send texts
-        try:
-            t = SMS(
-                recipients=phones,
-                body=sms_body,
-                sms_broker='aws',
-                run=self.run_id,
-                category='error',
-                object='task').send()
-        except Exception as err:
-            warnings.warn(str(err))
-            
-            # txt_error = Email(
-            #     recipients=emails,
-            #     body="SMS Failed to Send on Error",
-            #     from_email='noreply@wphospital.org',
-            #     subject='Notifcation Failure',
-            #     run=self.run_id,
-            #     category='error',
-            #     object='task'
-            # ).build_and_send()
 
     # Run the target script
     def run(self):
