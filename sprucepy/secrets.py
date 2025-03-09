@@ -26,7 +26,7 @@ def get_secret_by_key(
     auth_token = os.getenv('SPRUCE_API_TOKEN', api_token)
 
     headers = {
-        'Authorization': f'access_token {auth_token}'
+        'Authorization': f'Token {auth_token}'
     }
 
     res = requests.get(
