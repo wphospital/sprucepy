@@ -39,5 +39,7 @@ def get_secret_by_key(
     else:
         if res.status_code == 404:
             raise IndexError(key)
+        elif res.status_code == 401:
+            raise PermissionError(res.json()['detail'])
         else:
             raise Exception(res.text)
