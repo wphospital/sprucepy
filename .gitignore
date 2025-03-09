@@ -2,3 +2,5 @@ __pycache__
 *.pyc
 sprucepy.egg-info\ 
 sprucepy.egg-info/* 
+env/*
+*.ipynb
