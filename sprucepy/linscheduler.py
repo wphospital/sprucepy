@@ -77,16 +77,20 @@ def get_current_schedule(name, prettify=True):
         return sched_str.title()
 
 
-def get_next_run(name):
-    # Check if the cron service is running
-    res = subprocess.run(
-        'service cron status',
-        shell=True,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
+def get_next_run(
+    name,
+    check_cron_status : bool = False
+):
+    if check_cron_status:
+        # Check if the cron service is running
+        res = subprocess.run(
+            'service cron status',
+            shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
 
-    if 'failed' in res.stdout.decode():
-        return 'Cron is not running!'
+        if 'failed' in res.stdout.decode():
+            return 'Cron is not running!'
 
     sched = get_current_schedule(name, prettify=False)
 
