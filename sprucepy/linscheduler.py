@@ -1,20 +1,40 @@
 from crontab import CronTab
-from datetime import datetime, timezone
+from datetime import datetime
 import subprocess
 import pytz
 import time
-import datetime as dt
 import re
 import pretty_cron
 from croniter import croniter
 
 
-def _get_tz_offset(timezone=None):
-    if timezone:
-        tz = pytz.timezone(timezone)
-        return int(dt.datetime.now(tz).utcoffset().total_seconds() / 3600)
-    else:
-        return int(time.localtime().tm_gmtoff / 3600)
+def _get_tz_offset(
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
+)::
+    """
+    Calculates the time difference in hours between two timezones.
+
+    Args:
+        cron_timezone (str): Timezone name (e.g., 'UTC', 'America/Los_Angeles').
+        target_timezone (str): Timezone name (e.g., 'Australia/Sydney').
+
+    Returns:
+        float: Time difference in hours between cron_timezone and target_timezone.
+    """
+    tz1 = pytz.timezone(target_timezone)
+    tz2 = pytz.timezone(cron_timezone)
+
+    # Use a fixed datetime to avoid ambiguity
+    dt = datetime(2025, 3, 15, 12, 0, 0)  
+
+    dt_tz1 = tz1.localize(dt)
+    dt_tz2 = tz2.localize(dt)
+
+    offset_seconds = (dt_tz2 - dt_tz1).total_seconds()
+    offset_hours = offset_seconds / 3600
+
+    return int(offset_hours)
 
 
 def _get_python_path():
@@ -28,9 +48,16 @@ def find_job(name):
     return matches[0] if len(matches) > 0 else None
 
 
-def _convert_cron_hour(sched, timezone=None):
+def _convert_cron_hour(
+    sched,
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
+):
     if re.search(re.compile('([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?)'), sched):
-        TZ_OFFSET = _get_tz_offset(timezone=timezone)
+        TZ_OFFSET = _get_tz_offset(
+            cron_timezone=cron_timezone,
+            target_timezone=target_timezone
+        )
 
         counter = 0
         for r in re.finditer('[A-z0-9/,*]+ ', sched):
@@ -59,7 +86,12 @@ def _convert_cron_hour(sched, timezone=None):
     return sched
 
 
-def get_current_schedule(name, prettify=True):
+def get_current_schedule(
+    name,
+    prettify : bool = True,
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
+):
     job = find_job(name)
 
     if job is None:
@@ -70,7 +102,11 @@ def get_current_schedule(name, prettify=True):
     sched_str = re.search(sched_pat, job.__str__()).group(0).strip()
 
     if prettify:
-        sched_str = _convert_cron_hour(sched_str)
+        sched_str = _convert_cron_hour(
+            sched_str,
+            cron_timezone=cron_timezone,
+            target_timezone=target_timezone
+        )
 
         return pretty_cron.prettify_cron(sched_str).capitalize()
     else:
@@ -79,7 +115,9 @@ def get_current_schedule(name, prettify=True):
 
 def get_next_run(
     name,
-    check_cron_status : bool = False
+    check_cron_status : bool = False,
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
 ):
     if check_cron_status:
         # Check if the cron service is running
@@ -92,20 +130,23 @@ def get_next_run(
         if 'failed' in res.stdout.decode():
             return 'Cron is not running!'
 
-    sched = get_current_schedule(name, prettify=False)
+    sched = get_current_schedule(
+        name,
+        prettify=False,
+        cron_timezone=cron_timezone,
+        target_timezone=target_timezone
+    )
 
-    utc_now = datetime.now(tz=timezone.utc)
+    target_now = datetime.now(tz=pytz.timezone(target_timezone))
 
     if sched and sched != 'Not scheduled':
         if re.search(re.compile('([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?)'), sched):
-            c = croniter(sched, utc_now)
-            return c.get_next(datetime).replace(tzinfo=timezone.utc)
+            c = croniter(sched, target_now)
+            return c.get_next(datetime).replace(tzinfo=cron_timezone)
 
         job = find_job(name)
 
-        return job.schedule(date_from=utc_now).get_next(datetime)
-
-    return
+        return job.schedule(date_from=target_now).get_next(datetime)
 
 
 def remove_job(name):
@@ -175,3 +216,36 @@ def create_task(
             if frequency not in ['hourly', 'minutely']:
                 job.hour.on(0)
                 job.minute.on(0)
+
+class LinScheduler:
+    def __init__(
+        self,
+        cron_timezone : str = 'UTC',
+        target_timezone : str = 'America/New_York'
+    ):
+        self.cron_timezone = cron_timezone
+        self.target_timezone = target_timezone
+
+    def get_current_schedule(
+        self,
+        name,
+        prettify : bool = True
+    ):
+        return get_current_schedule(
+            name=name,
+            prettify=prettify,
+            cron_timezone=self.cron_timezone,
+            target_timezone=self.target_timezone
+        )
+
+    def get_next_run(
+        self,
+        name,
+        check_cron_status : bool = False
+    ):
+        return get_next_run(
+            name=name,
+            check_cron_status=check_cron_status,
+            cron_timezone=self.cron_timezone,
+            target_timezone=self.target_timezone
+        )
