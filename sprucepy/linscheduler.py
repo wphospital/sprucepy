@@ -218,36 +218,3 @@ def create_task(
             if frequency not in ['hourly', 'minutely']:
                 job.hour.on(0)
                 job.minute.on(0)
-
-class LinScheduler:
-    def __init__(
-        self,
-        cron_timezone : str = 'UTC',
-        target_timezone : str = 'America/New_York'
-    ):
-        self.cron_timezone = cron_timezone
-        self.target_timezone = target_timezone
-
-    def get_current_schedule(
-        self,
-        name,
-        prettify : bool = True
-    ):
-        return get_current_schedule(
-            name=name,
-            prettify=prettify,
-            cron_timezone=self.cron_timezone,
-            target_timezone=self.target_timezone
-        )
-
-    def get_next_run(
-        self,
-        name,
-        check_cron_status : bool = False
-    ):
-        return get_next_run(
-            name=name,
-            check_cron_status=check_cron_status,
-            cron_timezone=self.cron_timezone,
-            target_timezone=self.target_timezone
-        )

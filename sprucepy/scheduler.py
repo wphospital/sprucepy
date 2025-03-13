@@ -15,14 +15,30 @@ def task_name(task_id):
     return f'SpruceTask_{task_id}'
 
 
-def get_next(task_id):
+def get_next(
+    task_id,
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
+):
     if system == 'Linux':
-        return ls.get_next_run(task_name(task_id))
+        return ls.get_next_run(
+            task_name(task_id),
+            cron_timezone=cron_timezone,
+            target_timezone=target_timezone
+        )
 
 
-def get_current_schedule(task_id):
+def get_current_schedule(
+    task_id,
+    cron_timezone : str = 'UTC',
+    target_timezone : str = 'America/New_York'
+):
     if system == 'Linux':
-        return ls.get_current_schedule(task_name(task_id))
+        return ls.get_current_schedule(
+            task_name(task_id),
+            cron_timezone=cron_timezone,
+            target_timezone=target_timezone
+        )
 
 
 class Scheduler:
