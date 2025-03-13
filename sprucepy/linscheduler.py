@@ -11,7 +11,7 @@ from croniter import croniter
 def _get_tz_offset(
     cron_timezone : str = 'UTC',
     target_timezone : str = 'America/New_York'
-)::
+):
     """
     Calculates the time difference in hours between two timezones.
 
