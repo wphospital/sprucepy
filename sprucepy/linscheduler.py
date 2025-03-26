@@ -142,8 +142,8 @@ def get_next_run(
     if sched and sched != 'Not scheduled':
         if re.search(re.compile('([A-z0-9/,*]+ ){4}([A-z0-9/,*]+ ?)'), sched):
             c = croniter(sched, target_now)
-            return c.get_next(datetime).replace(
-                tzinfo=pytz.timezone(cron_timezone)
+            return c.get_next(datetime).astimezone(
+                pytz.timezone(cron_timezone)
             )
 
         job = find_job(name)
